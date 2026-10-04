@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useState } from "react";
 import { fetchTasks, type TasksParams, } from "./api/tasks";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { TaskCreateForm } from "./TaskCreateForm";
 import { TaskList } from "./TaskList";
 
@@ -44,6 +44,7 @@ export function Tasks(){
     const data = useMemo(() => fetchTasks(params),[status, q, count, updatecount]);
     return(
         <div>
+            <Link to={'/users'}>設定</Link>
             <div>
                 Status：
                 <select 

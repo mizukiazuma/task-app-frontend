@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { Task } from "../types/auth";
 import { apiClient } from "./client";
 

@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Signup } from './Signup';
 import { RouterProvider,createBrowserRouter,} from "react-router-dom";
 import { Tasks } from './Task';
+import { Settings } from './Setting';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +26,16 @@ const router = createBrowserRouter([
           {
             path: "",
           element: <Tasks />,
+        },
+        ]
+      },
+      {
+        path: "/users/",
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "",
+          element: <Settings />,
         },
         ]
       },
