@@ -1,23 +1,8 @@
-import { Suspense, use, useMemo, useState } from "react";
-import type { Task } from "./types/auth";
-import { fetchTasks, type TasksParams } from "./api/tasks";
+import { Suspense, useMemo, useState } from "react";
+import { fetchTasks, type TasksParams, } from "./api/tasks";
 import { useSearchParams } from "react-router-dom";
-
-function TaskList({data}: {data:Promise<Task[]>}){
-        const tasks = use(data)
-        return <div>
-            {tasks.length == 0 && <p>タスクが一つもないです。</p>}
-            {tasks.map((task: Task) => (
-            <div>
-                <h3>{ task.title }</h3>
-                <h5>{ task.description }</h5>
-                <p>{ task.status }</p>
-                <p>{ task.due_date }</p>
-            </div>
-            ))}
-        </div>
-    }
-
+import { TaskCreateForm } from "./TaskCreateForm";
+import { TaskList } from "./TaskList";
 
 export function Tasks(){
     const [searchParams, setSearchParams] = useSearchParams();
@@ -36,23 +21,49 @@ export function Tasks(){
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
     }
+    const handleStatusForm = (e) => {
+        setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+        });
+    };
     function handlesubmit(tasks:TasksParams){
         const params: Record<string, string>= {}
         if (tasks.status) params['status'] = tasks.status
         if (tasks.q) params['q'] = tasks.q
         setSearchParams(params)
     };
-    const data = useMemo(() => fetchTasks(params),[status, q])
+    const [count, setCount] = useState(0);
+    function handleChildAction() {
+        setCount((prev) => prev + 1);
+    }
+    const [updatecount, setupdateCount] = useState(0);
+    function handleUpdateAction() {
+        setupdateCount((prev) => prev + 1);
+    }
+    const data = useMemo(() => fetchTasks(params),[status, q, count, updatecount]);
     return(
         <div>
             <div>
-                Status：<input
-                        type="text"
-                        value={formData.status?? ""}
-                        onChange={handleForm}
-                        name="status"
-                        placeholder="status"
-                    />
+                Status：
+                <select 
+                    value={formData.status}
+                    onChange={handleStatusForm}
+                    name="status"
+                    >
+                        <option value="" selected>
+                            すべて
+                        </option>
+                        <option>
+                            todo
+                        </option>
+                        <option>
+                            doing
+                        </option>
+                        <option>
+                            done
+                        </option>
+                    </select>
                 </div>
                 <div>
                     Q
@@ -65,8 +76,12 @@ export function Tasks(){
                 </div>
                 <button type = "submit" onClick={() => handlesubmit(formData)} >検索</button>
             <Suspense key={q + status} fallback = {<p>ローディング中</p>}>
-                <TaskList data = {data}/>
+                <TaskList 
+                data = {data} 
+                onButtonClick={ handleUpdateAction }
+                />
             </Suspense>
+            <TaskCreateForm onButtonClick={handleChildAction}/>
         </div>
     )
 }
